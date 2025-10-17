@@ -28,6 +28,10 @@ default_states = dict(
 for k, v in default_states.items():
     st.session_state.setdefault(k, v)
 
+# 👉 NUEVO: contador para forzar limpieza del canvas
+if "canvas_key" not in st.session_state:
+    st.session_state.canvas_key = 0
+
 # ──────────────────────────────────────────────────────────────────────────────
 # UTILIDADES
 # ──────────────────────────────────────────────────────────────────────────────
@@ -214,7 +218,7 @@ canvas_result = st_canvas(
     height=360,
     width=520,
     drawing_mode="freedraw",
-    key="canvas",
+    key=f"canvas_{st.session_state.canvas_key}",  # ← clave variable para poder limpiar
 )
 
 # Botones principales
@@ -223,10 +227,15 @@ analyze = colA.button("🔎 Analizar imagen", type="primary")
 clear = colB.button("🧹 Limpiar lienzo")
 
 if clear:
-    # Reinicia estado y fuerza nueva clave del widget canvas con un truco de rerun
+    # Reinicia estado y fuerza una nueva key para el widget canvas
     st.session_state.update(
-        analysis_done=False, full_response="", base64_image="", last_png_bytes=None, story_text=""
+        analysis_done=False,
+        full_response="",
+        base64_image="",
+        last_png_bytes=None,
+        story_text=""
     )
+    st.session_state.canvas_key += 1   # ← fuerza un canvas “nuevo” y vacío
     st.rerun()
 
 # ──────────────────────────────────────────────────────────────────────────────
